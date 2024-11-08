@@ -4,7 +4,6 @@
 
 ## Table of Contents
 - [Requiremnets and User story](Requirements/RequiremnetsAndUserStory.md)
-- [Requiremnets and User story](Requirements/Re)
 - [Project Overview](#project-overview)
 - [Game Flow](#game-flow)
 - [Features](#features)
