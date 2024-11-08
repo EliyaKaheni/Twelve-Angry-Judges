@@ -57,7 +57,3 @@ The "Twelve Angry Judges" game is an interactive simulation where a user (player
 
 * **Final Verdict:**  
    Following the deliberation, the final verdict will be announced by the main judge, concluding the game.
-
----
-
-This `README.md` provides a structured overview of the game project, its requirements, and user stories, facilitating development and project management.
