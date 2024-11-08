@@ -3,7 +3,8 @@
 **Twelve Angry Judges** is an interactive courtroom simulation game where the player takes on the role of a defendant trying to convince twelve unique judges of their innocence. Each judge has distinct personalities, behaviors, and questions. The game dynamically adjusts the narrative using AI-driven interactions based on the player's choices.
 
 ## Table of Contents
-- [Requiremnets and User story](Requirements/Requiremnets and User story.md)
+- [Requiremnets and User story](Requirements/RequiremnetsAndUserStory.md)
+- [Requiremnets and User story](Requirements/Re)
 - [Project Overview](#project-overview)
 - [Game Flow](#game-flow)
 - [Features](#features)
