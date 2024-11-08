@@ -7,6 +7,16 @@ The "Twelve Angry Judges" game is an interactive simulation where a user (player
 ---
 
 
+## User Story
+New users must be able to create an account if they do not have one already, otherwise, they can easily and securely log into their accounts. 
+When they start the game they must describe the court case. Each judge will have a distinct AI-generated personality, for the court simulation experience to be varied and realistic. After a short intro, judges will ask questions that challenge the user’s story and keep the game engaging and interesting. 
+Users must respond to the questions and their defenses directly influence the court's perception of their characters. Meanwhile, they can see the real-time confidence meter to track the judges’ opinions about their guilt. 
+After answering the questions, users can observe a deliberation phase where judges discuss the case. Each judge thinks and talks distinctly according to their personality. After the deliberation, the final verdict will be announced, and the course of the game will end.
+
+
+---
+
+
 ## Functional Requirements
 1. **Account Management**  
    * The system should allow users to create an account, log in.
@@ -45,13 +55,3 @@ The "Twelve Angry Judges" game is an interactive simulation where a user (player
      
 4. **Reliability:**  
    * The game should operate without crashing or freezing, maintaining a 99% uptime.
-
-
----
-
-
-## User Story
-New users must be able to create an account if they do not have one already, otherwise, they can easily and securely log into their accounts. 
-When they start the game they must describe the court case. Each judge will have a distinct AI-generated personality, for the court simulation experience to be varied and realistic. After a short intro, judges will ask questions that challenge the user’s story and keep the game engaging and interesting. 
-Users must respond to the questions and their defenses directly influence the court's perception of their characters. Meanwhile, they can see the real-time confidence meter to track the judges’ opinions about their guilt. 
-After answering the questions, users can observe a deliberation phase where judges discuss the case. Each judge thinks and talks distinctly according to their personality. After the deliberation, the final verdict will be announced, and the course of the game will end.
