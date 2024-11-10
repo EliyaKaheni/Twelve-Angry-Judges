@@ -11,7 +11,6 @@
 - [Team Roles](#team-roles)
 - [How to Run](#how-to-run)
 - [Contributors](#contributors)
-- [License](#license)
 
 ---
 
