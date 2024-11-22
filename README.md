@@ -4,6 +4,7 @@
 
 ## Table of Contents
 - [UMLs](UMLs)
+- [Usecase diagram](Usecase%20diagram)
 - [Requiremnets and User story](Requirements/RequiremnetsAndUserStory.md)
 - [Project Overview](#project-overview)
 - [Game Flow](#game-flow)
