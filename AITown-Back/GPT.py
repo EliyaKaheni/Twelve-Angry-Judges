@@ -1,7 +1,7 @@
 from openai import OpenAI
 from openai import OpenAIError
 
-def prompt(use_prompt, system_prompt):
+def prompt(user_prompt, system_prompt=' '):
     try:
         client = OpenAI(
             api_key='KasiBeMaShakDare?',
@@ -12,7 +12,7 @@ def prompt(use_prompt, system_prompt):
             model='gpt-4o-mini',
             messages=[
                 {'role': 'system', 'content': system_prompt},
-                {'role':'user', 'content':use_prompt
+                {'role':'user', 'content':user_prompt
                 }
             ]
         )
