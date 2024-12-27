@@ -1,27 +1,67 @@
 from mysql.connector import Error
 from typing import Optional, Dict
-from GPT import pro
+from GPT import prompt
 import mysql.connector
 
 class UserManagement:
     def signup(username:str, password:str) -> bool:
-        pass
+        dbm = DataBaseManager()
+        return dbm.store_user(username=username, password=password)
 
     def signin(username:str, password:str) -> bool:
-        pass
+        dbm = DataBaseManager()
+        return dbm.login(username=username, password=password)
 
 
 class CourtRoomConversations:
     def __init__(self):
         self.verdict_meter = 0.5
+        self.case_story = ''
         self.conversationResult = {}
 
-    def submit_initial_defence(defence_text:str) -> float:
-        pass
+    def submit_initial_defence(self, defence_text:str) -> float:
+        try:
+            prompt_text = f"""Read the case story and the defense provided. Based on the information given, return a float number between 0 and 1 that indicates how guilty the user is. 
+- 0 means guilty.
+- 1 means innocent.
 
-    def generate_judge_question(personality: dict, defence_text:str, case_story:str) -> str:
-        pass
+Case Story: {self.case_story}
+Defense: {defence_text}
+"""
+            self.verdict_meter = prompt(prompt_text)
+            return self.verdict_meter
+        
+        except:
+            return 'Couldn`t connect to GPT'
 
+    def generate_case_story() -> str:
+        try:
+            prompt_text = """Generate a concise and engaging 3-line case story for a fictional legal game. Each case story should include:  
+1. **The Conflict**: The central legal issue or dispute (e.g., criminal, civil, corporate, or family law).  
+2. **The Twist**: A surprising or challenging element that complicates the case and requires deeper investigation or decision-making.  
+3. **The Stakes**: The consequences or broader implications of resolving the case correctly or incorrectly.  
+
+Write One case story in Persian and a way that intrigues the player and provides clear gameplay objectives. Avoid specific references to judges or other characters.   """
+            response = prompt(prompt_text)
+            return response
+        
+        except:
+            return 'Couldn`t connect to GPT'
+
+    def generate_judge_question(self, judges_personalities: dict, judge_name: str, defence_text:str, case_story:str) -> str:
+        try:
+            judge_personality = judges_personalities[judge_name]
+            prompt_text = f"""Based on the case story and the judge's personality below, generate a question that the judge must ask the suspect.
+
+Case Story: {self.case_story}  
+Judge Personality: {judge_personality}
+"""
+            response = prompt(prompt_text)
+            return response
+
+        except:
+            return 'Couldn`t connect to GPT'
+        
     def process_answer(question:str, answer:str) -> float:
         pass
 
@@ -43,8 +83,21 @@ class CourtRoom:
     def generate_player_appearance() -> dict:
         pass
 
-    def generate_judge_personality() -> dict:
-        pass
+    def generate_judge_personality(self) -> dict:
+        try:
+            prompt_text = """Generate 12 unique judge characters for a fictional game in JSON format. Each character should have the following attributes:
+    1. **Name**: A distinct and realistic name.
+    2. **Summary**: A short description of their personality, key traits, and judging style.
+
+    Output the result as a properly formatted JSON array.
+    Generate the summary in Persian"""
+            
+            self.judges_personality = prompt(prompt_text)
+            return self.judges_personality
+        
+        except:
+            return 'Couldn`t connect to GPT'
+
 
     def show_recent_cases(username:str) -> dict:
         pass
