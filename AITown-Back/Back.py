@@ -62,14 +62,41 @@ Judge Personality: {judge_personality}
         except:
             return 'Couldn`t connect to GPT'
         
-    def process_answer(question:str, answer:str) -> float:
-        pass
+    def process_answer(self, question: str, answer: str, judges_personalities: dict, judge_name: str) -> float:
+        try:
+            judge_personality = judges_personalities[judge_name]
+            prompt_text = f"""Given the question: "{question}" and the answer: "{answer}" and the judge personality:"{judge_personality}"
+return a float value between 0 and 1 to indicate the credibility of the answer. 
+0 means the answer is completely unreliable, and 1 means the answer is fully credible."""
+            response = prompt(prompt_text)
+            return response
+        
+        except Exception as e:
+            print(f"Error: {e}")
+            return 0.5  # Default value if error occurs
 
-    def simulate_judge_conversation() -> str:
-        pass
+    def simulate_judges_conversation(self) -> str:
+        try:
+            prompt_text = """Generate a simulated conversation between judges, where they discuss the case and provide a collective view on the verdict. 
+Include personality clashes or differences of opinion between them."""
+            response = prompt(prompt_text)
+            return response
+        
+        except Exception as e:
+            print(f"Error: {e}")
+            return 'Couldn`t connect to GPT'
     
-    def generate_final_verdict() -> str:
-        pass
+    def generate_final_verdict(self) -> str:
+        try:
+            prompt_text = f"""Generate the final verdict for the case, based on the previous interactions. 
+Take into account the defense, the judge's opinion, and any other relevant information."""
+            response = prompt(prompt_text)
+            return response
+        
+        except Exception as e:
+            print(f"Error: {e}")
+            return 'Couldn`t connect to GPT'
+
 
     
 class CourtRoom:
