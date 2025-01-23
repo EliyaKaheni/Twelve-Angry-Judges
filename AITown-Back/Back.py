@@ -208,11 +208,10 @@ Output the result as a properly formatted JSON array.
 
 class DataBaseManager:
     def __init__(self):
-        self.host = 'aitown-proxysql-svc.hrzentz.svc'
-        self.user = 'hamadmin'
-        self.password = 'yffpykifTgsFASt43y4y'
-        self.port = "3306"
-        self.database = 'hamdb'
+        self.host = 'localhost'
+        self.user = 'root'
+        self.password = 'HShea@yazd82'
+        self.database = 'aiTown'
         self.connection = None
 
     def connect(self):
@@ -221,7 +220,6 @@ class DataBaseManager:
                 host=self.host,
                 user=self.user,
                 password=self.password,
-                port="3306",
                 database=self.database
             )
         except Error as e:
@@ -298,9 +296,6 @@ class DataBaseManager:
             self.close_connection()
 
 
-
-
-
 @app.post("/signup")
 def signup(request: SignupRequest):
     success = UserManagement.signup(request.username, request.password)
@@ -336,7 +331,7 @@ def generate_judge_question(request: JudgeQuestionRequest):
 @app.post("/process_answer")
 def process_answer(request: AnswerSubmission):
     courtroom = CourtRoomConversations()
-    credibility = courtroom.process_answer(request.judge_personality, request.verdict_meter, request.question, request.answer, {})
+    credibility = courtroom.process_answer(request.judge_personality, request.verdict_meter, request.question, request.answer)
     return {"credibility": credibility}
 
 @app.post("/create_case")
