@@ -254,8 +254,10 @@ class DataBaseManager:
             self.connect()
             cursor = self.connection.cursor()
 
+            case_data_json = json.dumps(case_data)
+
             cursor.execute('''INSERT INTO courtCaseRecord (username, conversations) VALUES (%s, %s)''', 
-                        (username, json.dumps(case_data)))
+                        (username, case_data_json))
 
             self.connection.commit()
             return True
@@ -267,6 +269,24 @@ class DataBaseManager:
         finally:
             self.close_connection()
 
+    def reset_database(self) -> str:
+        """Resets the database by deleting all rows from the courtCaseRecord table."""
+        try:
+            self.connect()
+            cursor = self.connection.cursor()
+
+            cursor.execute('''DELETE FROM courtCaseRecord''')
+
+            self.connection.commit()
+            print("Database reset successful: All rows deleted from courtCaseRecord.")
+            return "Database cleared successfully"
+
+        except Error as e:
+            print(f'Error resetting database: {e}')
+            return "Error resetting database"
+
+        finally:
+            self.close_connection()
 
     def get_all_cases(self, username: str) -> Optional[list[Dict]]:
         """Fetches all cases for the given username from the database and returns them as a list of JSON objects."""
@@ -371,6 +391,12 @@ def create_case(request: CaseCreationRequest):
 def get_recent_cases(username: str):
     cases = CourtRoom.show_recent_cases(username)
     return {"cases": cases}
+
+@app.get("/reset_database")
+def reset_database():
+    dbm = DataBaseManager()
+    cases = dbm.reset_database()
+    return {"message": cases}
 
 @app.post("/final_verdict")
 def process_answer(request: FinalVerdict):
