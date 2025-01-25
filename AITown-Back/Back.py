@@ -193,13 +193,13 @@ class CourtRoom:
     def show_recent_cases(username: str) -> dict:
         try:
             dbm = DataBaseManager()
-            case_record = dbm.get_recent_cases(username)
+            case_record = dbm.get_all_cases(username)
 
             if not case_record:
                 return []
 
             else:
-                return [case_record]
+                return case_record
 
         except Exception as e:
             print(f"Error retrieving case data: {e}")
@@ -248,13 +248,15 @@ class DataBaseManager:
         if self.connection:
             self.connection.close()
 
-    def store_court_case(self, username: str, case_data: str) -> bool:
-        """Stores the case data as a JSON string in the database."""
-        query = '''INSERT INTO courtCaseRecord (username, conversations) VALUES (%s, %s)'''
+    def store_court_case(self, username: str, case_data: Dict) -> bool:
+        """Stores the case data as a new row in the database, without overwriting existing data."""
         try:
             self.connect()
             cursor = self.connection.cursor()
-            cursor.execute(query, (username, case_data))
+
+            cursor.execute('''INSERT INTO courtCaseRecord (username, conversations) VALUES (%s, %s)''', 
+                        (username, json.dumps(case_data)))
+
             self.connection.commit()
             return True
 
@@ -265,25 +267,29 @@ class DataBaseManager:
         finally:
             self.close_connection()
 
-    def get_recent_cases(self, username: str) -> Optional[Dict]:
-        """Fetches the most recent case from the database as a JSON object."""
+
+    def get_all_cases(self, username: str) -> Optional[list[Dict]]:
+        """Fetches all cases for the given username from the database and returns them as a list of JSON objects."""
         query = """SELECT conversations FROM courtCaseRecord 
-                   WHERE username = %s 
-                   ORDER BY created_at DESC 
-                   LIMIT 1"""
+                WHERE username = %s 
+                ORDER BY created_at DESC"""  
         try:
             self.connect()
             cursor = self.connection.cursor(dictionary=True)
             cursor.execute(query, (username,))
-            case_record = cursor.fetchone()
-            return case_record if case_record else {}
+            case_records = cursor.fetchall() 
+            if case_records:
+                return case_records 
+            else:
+                return []
 
         except Error as e:
-            print(f"Error retrieving recent cases: {e}")
-            return {}
+            print(f"Error retrieving all cases: {e}")
+            return []
 
         finally:
             self.close_connection()
+
     
     def login(self, username: str, password: str) -> bool:
         query = "SELECT * FROM users WHERE username = %s AND password = %s"
