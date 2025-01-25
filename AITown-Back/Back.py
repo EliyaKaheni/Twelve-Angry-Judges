@@ -8,6 +8,18 @@ import json
 
 app = FastAPI()
 
+class QuestionData:
+    question: str
+    answer: str
+
+class CaseData:
+    case_name: str
+    convict_name: str
+    story: str
+    questions: list
+    verdict: str
+    trust: float
+
 # Pydantic models for request bodies
 class SignupRequest(BaseModel):
     username: str
@@ -27,16 +39,14 @@ class JudgeQuestionRequest(BaseModel):
     case_story: str
 
 class AnswerSubmission(BaseModel):
-    judge_personality: str
+    case_data: CaseData
+    question_data: QuestionData
+    judge_traits: str
     verdict_meter: float
-    question: str
-    answer: str
     
 class CaseCreationRequest(BaseModel):
-    case_ID: str
+    case_data: CaseData
     username: str
-    description: str
-    case_history: str
 
 class FinalVerdict(BaseModel):
     verdict_meter: float
@@ -107,9 +117,18 @@ Judge Personality: {judge_personality}
             print(f"Error: {e}")
             return "Couldn’t connect to GPT"
         
-    def process_answer(self, judge_personality: str, verdict_meter: float, question: str, answer: str) -> float:
+    def process_answer(self, case_data: CaseData, question_data: QuestionData, judge_traits: str, verdict_meter: float) -> float:
         try:
-            prompt_text = f"""Given the question: "{question}" and the answer: "{answer}" and the judge's personality: "{judge_personality}"
+            case_name = case_data.case_name
+            convict_name = case_data.convict_name
+            story = case_data.story
+            questions = case_data.questions
+            verdict = case_data.verdict
+            trust = case_data.trust
+            question = question_data.question
+            answer = question_data.answer
+            
+            prompt_text = f"""Given the question: "{question}" and the answer: "{answer}" and the judge's personality: "{datajudge_traits}"
 Return a float value between 0 and 1 to indicate the credibility of the answer. 
 0 means the answer is completely unreliable, and 1 means the answer is fully credible.
 the verdict meter is now {verdict_meter}. return me the new verdict meter value in a float number between 0 an 1. JUST A FLOAT NUMBER.
@@ -137,7 +156,7 @@ Include personality clashes or differences of opinion between them."""
             state = "Innocent"
             if verdict_meter > 0.5:
                 state = "guilty"
-            prompt_text = f"""Generate the final verdict for the case, based on the state and case story. state is {state}. case story: {case_story}"""
+            prompt_text = f"""Generate the final verdict text for the case, based on the state and case story. state is {state}. case story: {case_story}"""
             response = prompt(prompt_text)
             return response
         
@@ -147,24 +166,10 @@ Include personality clashes or differences of opinion between them."""
 
 
 class CourtRoom:
-    def __init__(self, case_ID, username, description, case_history):
-        self.caseID = case_ID
-        self.username = username
-        self.description = description
-        self.case_history = case_history
-        self.judges_personality = []
-
-    def save_case(self) -> bool:
+    def save_case(self, case_data, username) -> bool:
         try:
-            case_data = json.dumps({
-                "caseID": self.caseID,
-                "username": self.username,
-                "description": self.description,
-                "case_history": self.case_history
-            }, ensure_ascii=False)
-
             dbm = DataBaseManager()
-            return dbm.store_court_case(self.username, case_data)
+            return dbm.store_court_case(username, case_data)
 
         except Exception as e:
             print(f"Error saving case: {e}")
@@ -172,15 +177,15 @@ class CourtRoom:
 
     @staticmethod
     def show_recent_cases(username: str) -> dict:
-        dbm = DataBaseManager()
-        case_record = dbm.get_recent_cases(username)
-
-        if not case_record:
-            return {"error": "No cases found"}
-
         try:
-            case_data = case_record.get("conversations")
-            return json.loads(case_data) if case_data else {"error": "Invalid case data"}
+            dbm = DataBaseManager()
+            case_record = dbm.get_recent_cases(username)
+
+            if not case_record:
+                return []
+
+            else:
+                return [case_record]
 
         except Exception as e:
             print(f"Error retrieving case data: {e}")
@@ -331,13 +336,13 @@ def generate_judge_question(request: JudgeQuestionRequest):
 @app.post("/process_answer")
 def process_answer(request: AnswerSubmission):
     courtroom = CourtRoomConversations()
-    credibility = courtroom.process_answer(request.judge_personality, request.verdict_meter, request.question, request.answer)
+    credibility = courtroom.process_answer(request.case_data, request.question_data, request.judge_traits, request.verdict_meter)
     return {"credibility": credibility}
 
 @app.post("/create_case")
 def create_case(request: CaseCreationRequest):
-    courtroom = CourtRoom(request.case_ID, request.username, request.description, request.case_history)
-    success = courtroom.save_case()
+    courtroom = CourtRoom()
+    success = courtroom.save_case(request.case_data, request.username)
     if not success:
         raise HTTPException(status_code=400, detail="Case creation failed")
     return {"message": "Case created successfully"}
@@ -350,8 +355,8 @@ def get_recent_cases(username: str):
 @app.post("/final_verdict")
 def process_answer(request: FinalVerdict):
     courtroom = CourtRoomConversations()
-    credibility = courtroom.generate_final_verdict(request.verdict_meter, request.case_story)
-    return {"credibility": credibility}
+    final_verdict = courtroom.generate_final_verdict(request.verdict_meter, request.case_story)
+    return {"final_verdict": final_verdict}
 
 @app.get("/generate_judge_personality")
 def generate_judge_personality():
