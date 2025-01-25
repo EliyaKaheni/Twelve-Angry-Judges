@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccb6c6ad6626fe74098423ba4c169999, type: 3}
+  m_Name: JudgeAppearanceContainer
+  m_EditorClassIdentifier: 
+  Avatars:
+  - {fileID: 21300000, guid: 67c740443de2bd54fbfb793b1454b4ad, type: 3}
+  - {fileID: 21300000, guid: 65279f7aa993f49429d7a3272f760e4c, type: 3}
+  - {fileID: 21300000, guid: 3987dbabdef83d241b6d93a6a8eefd78, type: 3}
+  - {fileID: 21300000, guid: ff594ea095eb3bb41bba1bca2e1450ce, type: 3}
+  - {fileID: 21300000, guid: 67796025450d8db4fad609e2d0123fd4, type: 3}
+  - {fileID: 21300000, guid: a1b88ffdc51bbfb4eb2a22fb073cb0b6, type: 3}
+  - {fileID: 21300000, guid: c699456d8438413429fa294196313528, type: 3}
+  - {fileID: 21300000, guid: a414a49a7c4051342a746959bfaea937, type: 3}
+  - {fileID: 21300000, guid: d40ecf8b9e961594fa9de8308c1b9e8b, type: 3}
+  - {fileID: 21300000, guid: af483a5a9e73ea84ab53fd8aeb494662, type: 3}
+  - {fileID: 21300000, guid: 028360525e1a2c945aae2df5656d0aca, type: 3}
+  - {fileID: 21300000, guid: 83005424ddaea90408457b73c148bf3c, type: 3}
+  - {fileID: 21300000, guid: 96c8aab9e01309a4ab691c3506411619, type: 3}
+  - {fileID: 21300000, guid: 090b82b823556e14fa689580a3136a5e, type: 3}
+  - {fileID: 21300000, guid: b4edcc2fd738bbf4895a8e72de4d9f3b, type: 3}
+  - {fileID: 21300000, guid: 94c6156daea27b74cb706f344780fd28, type: 3}
+  - {fileID: 21300000, guid: bf5bda90bdccc9644bf46b7cf81566bf, type: 3}
+  - {fileID: 21300000, guid: cd75cc91f2190ed489fe3b8660ee8155, type: 3}
+  - {fileID: 21300000, guid: c966e361b8be4b54bb34b5fd9ea9a733, type: 3}
+  - {fileID: 21300000, guid: eed44dbebcb85bb42a02f8d1f05f9321, type: 3}
+  Names: []
+  Traits: []
