@@ -45,6 +45,7 @@ class SigninRequest(BaseModel):
 class DefenceSubmission(BaseModel):
     case_data: CaseData
     judge_traits: str
+    question_data: QuestionData
 
 class JudgeQuestionRequest(BaseModel):
     case_data: CaseData
@@ -80,13 +81,19 @@ class CourtRoomConversations:
         self.case_story = ''
         self.conversationResult = {}
 
-    def submit_initial_defence(self, case_data: CaseData, judge_traits: str) -> float:
+    def submit_initial_defence(self, case_data: CaseData, judge_traits: str, question_data: QuestionData) -> float:
         try:
+            question = question_data.question
+            answer = question_data.answer
             prompt_text = f"""Current case data:
 {case_data}
 
 Request:
-The initial defense of the convict is provided as the first question and answer above, judge the answer from the point of view of a judge with traits '{judge_traits}' and provide only a float number between 0 and 1 for the initial trust meter value.
+The initial defense of the convict is provided as the question and answer below, judge the answer from the point of view of a judge with traits '{judge_traits}' and provide only a float number between 0 and 1 for the initial trust meter value.
+
+Question: {question}
+Answer: {answer}
+
 """
             self.verdict_meter = float(prompt(prompt_text))
             return self.verdict_meter
@@ -326,8 +333,8 @@ def signin(request: SigninRequest):
 @app.post("/submit_defence")
 def submit_defence(request: DefenceSubmission):
     courtroom = CourtRoomConversations()
-    verdict_meter = courtroom.submit_initial_defence(request.case_data, request.judge_traits)
-    return {"verdict_meter": verdict_meter}
+    credibility = courtroom.submit_initial_defence(request.case_data, request.judge_traits, request.question_data)
+    return {"credibility": credibility}
 
 @app.get("/generate_case_story")
 def generate_case_story():
@@ -363,8 +370,8 @@ def get_recent_cases(username: str):
 @app.post("/final_verdict")
 def process_answer(request: FinalVerdict):
     courtroom = CourtRoomConversations()
-    credibility = courtroom.generate_final_verdict(request.case_data)
-    return {"credibility": credibility}
+    final_verdict = courtroom.generate_final_verdict(request.case_data)
+    return {"final_verdict": final_verdict}
 
 @app.get("/generate_judge_personality")
 def generate_judge_personality():
