@@ -13,12 +13,25 @@ class QuestionData:
     answer: str
 
 class CaseData:
-    case_name: str
-    convict_name: str
-    story: str
-    questions: list
-    verdict: str
-    trust: float
+    def __init__(self, case_name: str, convict_name: str, story: str, questions: list[QuestionData], verdict: str, trust: float):
+        self.case_name = case_name
+        self.convict_name = convict_name
+        self.story = story
+        self.questions = questions
+        self.verdict = verdict
+        self.trust = trust
+
+    def __str__(self):
+        case_str = f"Case Name: {self.case_name}\n\n"
+        case_str += f"Convict Name: {self.convict_name}\n\n"
+        case_str += f"Story: {self.story}\n\n"
+        case_str += "Questions:\n"
+        for i, question_data in enumerate(self.questions, start=1):
+            case_str += f"Question {i}:\n{question_data.question}\n"
+            case_str += f"Answer {i}:\n{question_data.answer}\n\n"
+        case_str += f"Verdict: {self.verdict}\n\n"
+        case_str += f"Trust: {self.trust}\n"
+        return case_str
 
 # Pydantic models for request bodies
 class SignupRequest(BaseModel):
@@ -30,27 +43,24 @@ class SigninRequest(BaseModel):
     password: str
 
 class DefenceSubmission(BaseModel):
-    case_story: str
-    defence_text: str
+    case_data: CaseData
+    judge_traits: str
 
 class JudgeQuestionRequest(BaseModel):
-    judge_personality: str
-    defence_text: str
-    case_story: str
+    case_data: CaseData
+    judge_traits: str
 
 class AnswerSubmission(BaseModel):
     case_data: CaseData
     question_data: QuestionData
     judge_traits: str
-    verdict_meter: float
     
 class CaseCreationRequest(BaseModel):
     case_data: CaseData
     username: str
 
 class FinalVerdict(BaseModel):
-    verdict_meter: float
-    case_story: str
+    case_data: CaseData
 
 class UserManagement:
     @staticmethod
@@ -70,15 +80,13 @@ class CourtRoomConversations:
         self.case_story = ''
         self.conversationResult = {}
 
-    def submit_initial_defence(self, case_story, defence_text: str) -> float:
+    def submit_initial_defence(self, case_data: CaseData, judge_traits: str) -> float:
         try:
-            prompt_text = f"""Read the case story and the defense provided. Based on the information given, return a float number between 0 and 1 that indicates how guilty the user is. 
-- 0 means guilty.
-- 1 means innocent.
+            prompt_text = f"""Current case data:
+{case_data}
 
-Case Story: {case_story}
-Defense: {defence_text}
-JUST RETURN A FLOAT NUMBER BETWEEN 0 AND 1.
+Request:
+The initial defense of the convict is provided as the first question and answer above, judge the answer from the point of view of a judge with traits '{judge_traits}' and provide only a float number between 0 and 1 for the initial trust meter value.
 """
             self.verdict_meter = float(prompt(prompt_text))
             return self.verdict_meter
@@ -96,19 +104,20 @@ JUST RETURN A FLOAT NUMBER BETWEEN 0 AND 1.
 3. **The Stakes**: The consequences or broader implications of resolving the case correctly or incorrectly.  
 
 Write one case story in a way that intrigues the player and provides clear gameplay objectives. Avoid specific references to judges or other characters."""
-            response = prompt(prompt_text)
+            response = prompt(prompt_text, ' ')
             return response
         
         except Exception as e:
             print(f"Error: {e}")
             return "Couldn’t connect to GPT"
 
-    def generate_judge_question(self, judge_personality: str, defence_text: str, case_story: str) -> str:
+    def generate_judge_question(self, case_data: CaseData, judge_traits: str) -> str:
         try:
-            prompt_text = f"""Based on the case story and the judge's personality below, generate a question that the judge must ask the suspect.
+            prompt_text = f"""Current case data:
+{case_data}
 
-Case Story: {case_story}  
-Judge Personality: {judge_personality}
+Request:
+The current case data is provided above. I need you to generate a new relevant question from the point of view of a judge with traits '{judge_traits}'. Provide only a question and nothing more.
 """
             response = prompt(prompt_text)
             return response
@@ -117,21 +126,18 @@ Judge Personality: {judge_personality}
             print(f"Error: {e}")
             return "Couldn’t connect to GPT"
         
-    def process_answer(self, case_data: CaseData, question_data: QuestionData, judge_traits: str, verdict_meter: float) -> float:
+    def process_answer(self, case_data: CaseData, question_data: QuestionData, judge_traits: str) -> float:
         try:
-            case_name = case_data.case_name
-            convict_name = case_data.convict_name
-            story = case_data.story
-            questions = case_data.questions
-            verdict = case_data.verdict
-            trust = case_data.trust
             question = question_data.question
             answer = question_data.answer
-            
-            prompt_text = f"""Given the question: "{question}" and the answer: "{answer}" and the judge's personality: "{datajudge_traits}"
-Return a float value between 0 and 1 to indicate the credibility of the answer. 
-0 means the answer is completely unreliable, and 1 means the answer is fully credible.
-the verdict meter is now {verdict_meter}. return me the new verdict meter value in a float number between 0 an 1. JUST A FLOAT NUMBER.
+            prompt_text = f"""Current case data:
+{case_data}
+
+Request:
+The current case data is provided above. The current question and answer is listed below. I want you to judge the convict's answer from the point of view of a judge with traits '{judge_traits}', and provide only a new trust meter value from 0 to 1, according to the current trust value (provided above) and the validity of the answer and traits of the judge.
+Question: {question}
+Answer: {answer}
+
 """
             response = float(prompt(prompt_text))
             return response
@@ -151,12 +157,14 @@ Include personality clashes or differences of opinion between them."""
             print(f"Error: {e}")
             return "Couldn’t connect to GPT"
     
-    def generate_final_verdict(self, verdict_meter, case_story) -> str:
+    def generate_final_verdict(self, case_data) -> str:
         try:
-            state = "Innocent"
-            if verdict_meter > 0.5:
-                state = "guilty"
-            prompt_text = f"""Generate the final verdict text for the case, based on the state and case story. state is {state}. case story: {case_story}"""
+            prompt_text = f"""Current case data:
+{case_data}
+
+Request:
+The current case data is provided above, including all the questions and answers and the trust meter value. I want you to generate a verdict declaring whether the convict is guilty or not, and if they are, include the punishment as well. Provide only the final verdict and nothing more.
+"""
             response = prompt(prompt_text)
             return response
         
@@ -318,7 +326,7 @@ def signin(request: SigninRequest):
 @app.post("/submit_defence")
 def submit_defence(request: DefenceSubmission):
     courtroom = CourtRoomConversations()
-    verdict_meter = courtroom.submit_initial_defence(request.case_story, request.defence_text)
+    verdict_meter = courtroom.submit_initial_defence(request.case_data, request.judge_traits)
     return {"verdict_meter": verdict_meter}
 
 @app.get("/generate_case_story")
@@ -330,13 +338,13 @@ def generate_case_story():
 @app.post("/generate_judge_question")
 def generate_judge_question(request: JudgeQuestionRequest):
     courtroom = CourtRoomConversations()
-    question = courtroom.generate_judge_question(request.judge_personality, request.defence_text, request.case_story)
+    question = courtroom.generate_judge_question(request.case_data, request.judge_traits)
     return {"question": question}
 
 @app.post("/process_answer")
 def process_answer(request: AnswerSubmission):
     courtroom = CourtRoomConversations()
-    credibility = courtroom.process_answer(request.case_data, request.question_data, request.judge_traits, request.verdict_meter)
+    credibility = courtroom.process_answer(request.case_data, request.question_data, request.judge_traits)
     return {"credibility": credibility}
 
 @app.post("/create_case")
@@ -355,8 +363,8 @@ def get_recent_cases(username: str):
 @app.post("/final_verdict")
 def process_answer(request: FinalVerdict):
     courtroom = CourtRoomConversations()
-    final_verdict = courtroom.generate_final_verdict(request.verdict_meter, request.case_story)
-    return {"final_verdict": final_verdict}
+    credibility = courtroom.generate_final_verdict(request.case_data)
+    return {"credibility": credibility}
 
 @app.get("/generate_judge_personality")
 def generate_judge_personality():
