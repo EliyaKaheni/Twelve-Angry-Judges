@@ -299,7 +299,9 @@ class DataBaseManager:
             cursor.execute(query, (username,))
             case_records = cursor.fetchall() 
             if case_records:
-                return case_records 
+                for record in case_records:
+                    record["conversations"] = json.loads(record["conversations"])
+                return case_records
             else:
                 return []
 
