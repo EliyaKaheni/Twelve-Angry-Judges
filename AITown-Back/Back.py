@@ -8,18 +8,18 @@ import json
 
 app = FastAPI()
 
-class QuestionData:
+
+class QuestionData(BaseModel):  
     question: str
     answer: str
 
-class CaseData:
-    def __init__(self, case_name: str, convict_name: str, story: str, questions: list[QuestionData], verdict: str, trust: float):
-        self.case_name = case_name
-        self.convict_name = convict_name
-        self.story = story
-        self.questions = questions
-        self.verdict = verdict
-        self.trust = trust
+class CaseData(BaseModel):
+    case_name: str
+    convict_name: str
+    story: str
+    questions: list[QuestionData]
+    verdict: str
+    trust: float
 
     def __str__(self):
         case_str = f"Case Name: {self.case_name}\n\n"
