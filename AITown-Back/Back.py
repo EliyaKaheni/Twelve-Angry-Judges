@@ -57,7 +57,7 @@ class AnswerSubmission(BaseModel):
     judge_traits: str
     
 class CaseCreationRequest(BaseModel):
-    case_data: CaseData
+    case_data: str
     username: str
 
 class FinalVerdict(BaseModel):
@@ -89,11 +89,10 @@ class CourtRoomConversations:
 {case_data}
 
 Request:
-The initial defense of the convict is provided as the question and answer below, judge the answer from the point of view of a judge with traits '{judge_traits}' and provide only a float number between 0 and 1 for the initial trust meter value.
+The initial defense of the convict is provided as the question and answer below, judge the answer from the point of view of a judge with traits '{judge_traits}' and provide only a float number between 0 and 1 for the initial trust meter value. Do not give me anything more than that number.
 
 Question: {question}
 Answer: {answer}
-
 """
             self.verdict_meter = float(prompt(prompt_text))
             return self.verdict_meter
@@ -124,7 +123,7 @@ Write one case story in a way that intrigues the player and provides clear gamep
 {case_data}
 
 Request:
-The current case data is provided above. I need you to generate a new relevant question from the point of view of a judge with traits '{judge_traits}'. Provide only a question and nothing more.
+The current case data is provided above. I need you to generate a new relevant question from the point of view of a judge with traits '{judge_traits}'. Provide only a question and nothing more. Do not give me anything more than that question.
 """
             response = prompt(prompt_text)
             return response
@@ -141,10 +140,10 @@ The current case data is provided above. I need you to generate a new relevant q
 {case_data}
 
 Request:
-The current case data is provided above. The current question and answer is listed below. I want you to judge the convict's answer from the point of view of a judge with traits '{judge_traits}', and provide only a new trust meter value from 0 to 1, according to the current trust value (provided above) and the validity of the answer and traits of the judge.
+The current case data is provided above. The current question and answer is listed below. I want you to judge the convict's answer from the point of view of a judge with traits '{judge_traits}', and provide only a new trust meter value from 0 to 1, according to the current trust value (provided above) and the validity of the answer and traits of the judge. Do not give me anything more than that number.
+
 Question: {question}
 Answer: {answer}
-
 """
             response = float(prompt(prompt_text))
             return response
@@ -170,7 +169,7 @@ Include personality clashes or differences of opinion between them."""
 {case_data}
 
 Request:
-The current case data is provided above, including all the questions and answers and the trust meter value. I want you to generate a verdict declaring whether the convict is guilty or not, and if they are, include the punishment as well. Provide only the final verdict and nothing more.
+The current case data is provided above, including all the questions and answers and the trust meter value. I want you to generate a verdict declaring whether the convict is guilty or not, and if they are, include the punishment as well. Provide only the final verdict and nothing more. Do not give me in formats like these: "Verdict: ...", make a sentence with the information then give it to me. Do not give me anything more than that sentence.
 """
             response = prompt(prompt_text)
             return response
